@@ -220,7 +220,7 @@ pub fn init_sub_services(
         block_stream,
         database.gas_price().clone(),
         database.on_chain().clone(),
-        da_source_state.clone(),
+        Box::new(da_source_state.clone()),
     )?;
     let next_algo = gas_price_init.shared_data();
     let gas_price_service = ServiceRunner::new(gas_price_init);

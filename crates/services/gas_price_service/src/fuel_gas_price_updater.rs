@@ -23,12 +23,12 @@ mod tests;
 pub mod fuel_core_storage_adapter;
 pub mod fuel_da_source_adapter;
 
-pub struct FuelGasPriceUpdater<L2, Metadata, DaSource> {
+pub struct FuelGasPriceUpdater<L2, Metadata> {
     inner: AlgorithmUpdater,
     l2_block_source: L2,
     metadata_storage: Metadata,
     #[allow(dead_code)]
-    da_source: DaSource,
+    da_source: Box<dyn DaCommitSource>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -53,12 +53,12 @@ impl AlgorithmUpdater {
     }
 }
 
-impl<L2, Metadata, DaSource> FuelGasPriceUpdater<L2, Metadata, DaSource> {
+impl<L2, Metadata> FuelGasPriceUpdater<L2, Metadata> {
     pub fn new(
         inner: AlgorithmUpdater,
         l2_block_source: L2,
         metadata_storage: Metadata,
-        da_source: DaSource,
+        da_source: Box<dyn DaCommitSource>,
     ) -> Self {
         Self {
             inner,
@@ -205,16 +205,15 @@ pub trait MetadataStorage: Send + Sync {
     fn set_metadata(&mut self, metadata: UpdaterMetadata) -> Result<()>;
 }
 
-impl<L2, Metadata, DaSource> FuelGasPriceUpdater<L2, Metadata, DaSource>
+impl<L2, Metadata> FuelGasPriceUpdater<L2, Metadata>
 where
     Metadata: MetadataStorage,
-    DaSource: DaCommitSource,
 {
     pub fn init(
         target_block_height: BlockHeight,
         l2_block_source: L2,
         metadata_storage: Metadata,
-        da_source: DaSource,
+        da_source: Box<dyn DaCommitSource>,
         min_exec_gas_price: u64,
         exec_gas_price_change_percent: u64,
         l2_block_fullness_threshold_percent: u64,
@@ -305,12 +304,10 @@ where
 }
 
 #[async_trait::async_trait]
-impl<L2, Metadata, DaSource> UpdateAlgorithm
-    for FuelGasPriceUpdater<L2, Metadata, DaSource>
+impl<L2, Metadata> UpdateAlgorithm for FuelGasPriceUpdater<L2, Metadata>
 where
     L2: L2BlockSource,
     Metadata: MetadataStorage + Send + Sync,
-    DaSource: DaCommitSource,
 {
     type Algorithm = Algorithm;
 

@@ -119,7 +119,7 @@ async fn next__fetches_l2_block() {
         starting_metadata.into(),
         l2_block_source,
         metadata_storage,
-        fake_da_source.clone(),
+        Box::new(fake_da_source.clone()),
     );
 
     let start = updater.start(0.into());
@@ -161,7 +161,7 @@ async fn next__new_l2_block_saves_old_metadata() {
         starting_metadata.into(),
         l2_block_source,
         metadata_storage,
-        FakeDaSource::default(),
+        Box::new(FakeDaSource::default()),
     );
 
     let start = updater.start(0.into());
@@ -194,7 +194,7 @@ async fn init__if_exists_already_reload_old_values_with_overrides() {
         height,
         l2_block_source,
         metadata_storage,
-        FakeDaSource::default(),
+        Box::new(FakeDaSource::default()),
         new_min_exec_gas_price,
         new_exec_gas_price_change_percent,
         new_l2_block_fullness_threshold_percent,
@@ -227,7 +227,7 @@ async fn init__if_it_does_not_exist_fail() {
         height.into(),
         l2_block_source,
         metadata_storage,
-        FakeDaSource::default(),
+        Box::new(FakeDaSource::default()),
         0,
         0,
         0,
